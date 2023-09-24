@@ -40,7 +40,7 @@ from .plugins.utils.utils_data import (
     get_hash,
     get_remove_noun,
     get_text_split,
-    get_response_json_clean
+    #get_response_json_clean
 )
 from .plugins.utils.utils_voice import (
     init_v2t_model,
@@ -95,5 +95,5 @@ from .plugins.utils.utils_file import (
     read_docx_file,
     read_pptx_file,
     read_file,
-    get_linkco_json
+    #get_linkco_json
 )
