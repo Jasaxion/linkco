@@ -182,8 +182,8 @@ def merge_database(database0: dict, database1: dict):
 
 
 # 创建数据库
-def create_vector_database(source_folder: str or list,
-                           database_path: str,
+def create_vector_database(source_folder: str or list = None,
+                           database_path: str = None,
                            split_len: int = 512):
     # print('【source_folder】', source_folder)
     vector = get_text_to_vector('test')
@@ -196,7 +196,7 @@ def create_vector_database(source_folder: str or list,
     all_files = []
     create_from_empty = False
     #未指定源文件或源文件为空的话，直接建立一个空的数据库
-    if source_folder == "" :
+    if source_folder == "" or source_folder == None:
         create_from_empty = True
     elif isinstance(source_folder, str):
         source_folder_path = os.path.join(os.getcwd(), source_folder)
@@ -219,14 +219,9 @@ def create_vector_database(source_folder: str or list,
     batch_size = 512
 
     if create_from_empty == True:
-        print("No source_file, creating database from empyty...")
-        temp_model = init_vector_model()
-        temp_vector_dbs = {
-            'texts': "",
-            'vectors': get_text_to_vector("", temp_model),
-        }
-        database = add_vector(database, temp_vector_dbs)
-        save_vector_to_database(database, database_path)
+        print("No source_file, creating empty database...")
+        if database_path != None:
+            save_vector_to_database(database, database_path)
     else:
         print("Source_file specified, creating database from file...")
         range_count = int(len(all_files) / batch_size)
@@ -252,6 +247,7 @@ def create_vector_database(source_folder: str or list,
             }
 
             database = add_vector(database, temp_vector_dbs)
-            save_vector_to_database(database, database_path)
+            if database_path != None:
+                save_vector_to_database(database, database_path)
     return database
 
