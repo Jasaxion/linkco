@@ -194,7 +194,11 @@ def create_vector_database(source_folder: str or list,
             }
 
     all_files = []
-    if isinstance(source_folder, str):
+    create_from_empty = False
+    #未指定源文件或源文件为空的话，直接建立一个空的数据库
+    if source_folder == "" :
+        create_from_empty = True
+    elif isinstance(source_folder, str):
         source_folder_path = os.path.join(os.getcwd(), source_folder)
         if os.path.isdir(source_folder_path):
             for root, dirs, files in os.walk(source_folder_path):
@@ -214,29 +218,40 @@ def create_vector_database(source_folder: str or list,
 
     batch_size = 512
 
-    range_count = int(len(all_files) / batch_size)
-    if range_count == 0:
-        range_count = 1
-    for i in tqdm(range(range_count)):
-        all_datas = []
-        for file_path in all_files[i * batch_size: (i + 1) * batch_size]:
-            try:
-                datas = get_text_split(read_file(file_path), split_len)
-                all_datas.extend(datas)
-            except:
-                continue
-        all_datas = list(set(all_datas))
-
-        # 排序
-        all_datas.sort(key=len)
-
+    if create_from_empty == True:
+        print("No source_file, creating database from empyty...")
         temp_model = init_vector_model()
         temp_vector_dbs = {
-            'texts': all_datas,
-            'vectors': get_text_to_vector(all_datas, temp_model),
+            'texts': "",
+            'vectors': get_text_to_vector("", temp_model),
         }
-
         database = add_vector(database, temp_vector_dbs)
         save_vector_to_database(database, database_path)
+    else:
+        print("Source_file specified, creating database from file...")
+        range_count = int(len(all_files) / batch_size)
+        if range_count == 0:
+            range_count = 1
+        for i in tqdm(range(range_count)):
+            all_datas = []
+            for file_path in all_files[i * batch_size: (i + 1) * batch_size]:
+                try:
+                    datas = get_text_split(read_file(file_path), split_len)
+                    all_datas.extend(datas)
+                except:
+                    continue
+            all_datas = list(set(all_datas))
+
+            # 排序
+            all_datas.sort(key=len)
+
+            temp_model = init_vector_model()
+            temp_vector_dbs = {
+                'texts': all_datas,
+                'vectors': get_text_to_vector(all_datas, temp_model),
+            }
+
+            database = add_vector(database, temp_vector_dbs)
+            save_vector_to_database(database, database_path)
     return database
 
